@@ -1,0 +1,24 @@
+package com.example.car_position_consumer.model;
+
+import lombok.*;
+import org.springframework.data.annotation.Id;
+
+import java.time.Instant;
+
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
+public class Vehicle {
+    private Long id;
+    @Id
+    private String vin;
+    private String numberPlate;
+    private Position position;
+    private Double fuel;
+    private String model;
+    private String polygonId;
+    private Instant lastModified;
+
+}   
