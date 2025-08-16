@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.CompletableFuture;
+import org.springframework.kafka.support.SendResult;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
@@ -65,18 +67,19 @@ public class VehicleEventService {
     private PolygonHelper polygonHelper;
 
     @Autowired
-    private KafkaTemplate<String, Vehicle> kafkaTemplate;
+    KafkaTemplate<String, Vehicle> kafkaTemplate;
 
     public void processVehicleEvent(ConsumerRecord<String, Vehicle> consumerRecord) {
         Vehicle vehicle = consumerRecord.value();
         log.info("vehicleEvent : {} ", vehicle);
 
-        // Ensure polygonHelper expects this object type
         vehicle.setPolygonId(polygonHelper.findVehiclePolygon(vehicle.getPosition()));
         vehicle.setLastModified(Instant.now());
 
         vehicleRepository.save(vehicle);
+
     }
+
 
     public void handleRecovery(ConsumerRecord<String, Vehicle> record) {
         log.error("handleRecovery for {}", record);
@@ -88,10 +91,13 @@ public class VehicleEventService {
 
         future.whenComplete((result, ex) -> {
             if (ex != null) {
-                log.error("Failed to send event for {}: {}", key, ex.getMessage(), ex);
+                log.error("Error sending message for key {}: {}", key, ex.getMessage(), ex);
             } else {
-                log.info("Successfully sent event for {}: {}", key, message);
+                log.info("Message Sent Successfully for key: {} value: {} partition: {}", key, message,
+                        result.getRecordMetadata().partition());
             }
         });
     }
+
+
 }

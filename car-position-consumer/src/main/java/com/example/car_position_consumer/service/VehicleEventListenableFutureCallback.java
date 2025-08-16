@@ -29,4 +29,5 @@ public class VehicleEventListenableFutureCallback implements ListenableFutureCal
     public void onSuccess(SendResult<String, Vehicle> result) {
         log.info("Message Sent SuccessFully for the key : {} and the value is {} , partition is {}", key, value, result.getRecordMetadata().partition());
     }
-}   
+}
+
