@@ -4,6 +4,7 @@ import com.example.car_position_consumer.model.polygon.MyPolygon;
 import com.example.car_position_consumer.repository.PolygonRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.*;
