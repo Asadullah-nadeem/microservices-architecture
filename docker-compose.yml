@@ -22,7 +22,7 @@ services:
       - kafka-net
     ports:
       - '9092:9092'
-#      - '29092:29092'
+      - '29092:29092'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CLUSTER_ID=OUntSP81T6ifB4MnpMZ_tw
@@ -44,7 +44,7 @@ services:
       - kafka-net
     ports:
       - '9093:9093'
-#      - '29093:29093'
+      - '29093:29093'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CLUSTER_ID=OUntSP81T6ifB4MnpMZ_tw
@@ -57,7 +57,6 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server2:9093,PLAINTEXT_HOST://localhost:29093
     volumes:
       - 'kafka_2_data:/bitnami/kafka'
-
     depends_on:
       - zookeeper-server
 
@@ -67,7 +66,7 @@ services:
       - kafka-net
     ports:
       - '9094:9094'
-#      - '29094:29094'
+      - '29094:29094'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CLUSTER_ID=OUntSP81T6ifB4MnpMZ_tw
@@ -79,7 +78,7 @@ services:
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9094,PLAINTEXT_HOST://:29094
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server3:9094,PLAINTEXT_HOST://localhost:29094
     volumes:
-    - 'kafka_3_data:/bitnami/kafka'
+      - 'kafka_3_data:/bitnami/kafka'
     depends_on:
       - zookeeper-server
 
