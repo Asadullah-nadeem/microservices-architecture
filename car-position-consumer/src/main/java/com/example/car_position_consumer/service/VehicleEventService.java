@@ -1,6 +1,5 @@
 package com.example.car_position_consumer.service;
 
-
 import com.example.car_position_consumer.model.Vehicle;
 import com.example.car_position_consumer.repository.VehicleRepository;
 import com.example.car_position_consumer.util.PolygonHelper;
@@ -10,52 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import java.util.concurrent.CompletableFuture;
-import org.springframework.kafka.support.SendResult;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
-
-//@Service
-//@Slf4j
-//public class VehicleEventService {
-//
-//    @Autowired
-//    private VehicleRepository vehicleRepository;
-//
-//    @Autowired
-//    private PolygonHelper polygonHelper;
-//
-//    @Autowired
-//    KafkaTemplate<String, Vehicle> kafkaTemplate;
-//
-//    public void processVehicleEvent(ConsumerRecord<String, Vehicle> consumerRecord) {
-//        Vehicle vehicle = consumerRecord.value();
-//        log.info("vehicleEvent : {} ", vehicle);
-//
-//        vehicle.setPolygonId(polygonHelper.findVehiclePolygon(vehicle.getPosition()));
-//        vehicle.setLastModified(Instant.now());
-//
-//        vehicleRepository.save(vehicle);
-//
-//    }
-//
-//
-//    public void handleRecovery(ConsumerRecord<String,Vehicle> record){
-//        log.error("handleRecovery for {}", record);
-//
-//        String key = record.key();
-//        Vehicle message = record.value();
-//        //String message = record.value().replace(":0",":-1");
-//
-//        ListenableFuture<SendResult<String,Vehicle>> listenableFuture = kafkaTemplate.sendDefault(key, message);
-//        listenableFuture.addCallback(new VehicleEventListenableFutureCallback(key,message));
-//
-//
-//    }
-//
-//}
 @Service
 @Slf4j
 public class VehicleEventService {
@@ -67,7 +24,7 @@ public class VehicleEventService {
     private PolygonHelper polygonHelper;
 
     @Autowired
-    KafkaTemplate<String, Vehicle> kafkaTemplate;
+    private KafkaTemplate<String, Vehicle> kafkaTemplate;
 
     public void processVehicleEvent(ConsumerRecord<String, Vehicle> consumerRecord) {
         Vehicle vehicle = consumerRecord.value();
@@ -77,27 +34,26 @@ public class VehicleEventService {
         vehicle.setLastModified(Instant.now());
 
         vehicleRepository.save(vehicle);
-
     }
-
 
     public void handleRecovery(ConsumerRecord<String, Vehicle> record) {
         log.error("handleRecovery for {}", record);
 
         String key = record.key();
         Vehicle message = record.value();
-
         CompletableFuture<SendResult<String, Vehicle>> future = kafkaTemplate.sendDefault(key, message);
 
         future.whenComplete((result, ex) -> {
             if (ex != null) {
-                log.error("Error sending message for key {}: {}", key, ex.getMessage(), ex);
+                // This is the onFailure part
+                log.error("Error sending recovered message for key {}: {}", key, ex.getMessage());
             } else {
-                log.info("Message Sent Successfully for key: {} value: {} partition: {}", key, message,
+                // This is the onSuccess part
+                log.info("Recovered message sent successfully for key: {}, value: {}, partition: {}",
+                        key,
+                        message,
                         result.getRecordMetadata().partition());
             }
         });
     }
-
-
 }
