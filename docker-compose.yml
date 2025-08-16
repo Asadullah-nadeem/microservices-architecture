@@ -22,7 +22,7 @@ services:
       - kafka-net
     ports:
       - '9092:9092'
-      - '29092:29092'
+#      - '29092:29092'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CLUSTER_ID=OUntSP81T6ifB4MnpMZ_tw
@@ -44,7 +44,7 @@ services:
       - kafka-net
     ports:
       - '9093:9093'
-      - '29093:29093'
+#      - '29093:29093'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CLUSTER_ID=OUntSP81T6ifB4MnpMZ_tw
@@ -67,7 +67,7 @@ services:
       - kafka-net
     ports:
       - '9094:9094'
-      - '29094:29094'
+#      - '29094:29094'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CLUSTER_ID=OUntSP81T6ifB4MnpMZ_tw
