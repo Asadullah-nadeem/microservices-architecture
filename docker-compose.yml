@@ -84,6 +84,7 @@ services:
 
   car-position-producer:
     image: "car-position-producer"
+    build: ./car-position-producer
     ports:
       - "8081:8081"
     networks:
@@ -99,6 +100,8 @@ services:
 
   car-position-consumer:
     image: "car-position-consumer"
+    build: ./car-position-consumer
+
     ports:
       - "8082:8082"
     networks:
@@ -147,6 +150,7 @@ services:
 
   car-webServices:
     image: "car-webservices"
+    build: ./car-webServices
     networks:
       - kafka-net
     ports:
