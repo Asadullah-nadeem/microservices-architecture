@@ -3,6 +3,7 @@ package com.example.car_position_consumer.util;
 import com.example.car_position_consumer.model.polygon.MyPolygon;
 import com.example.car_position_consumer.repository.PolygonRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.car_position_consumer.model.Position;
 
 
 import jakarta.annotation.PostConstruct;
