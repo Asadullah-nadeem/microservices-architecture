@@ -13,6 +13,8 @@ services:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - 'zookeeper_data:/bitnami/zookeeper'
 
   kafka-server1:
     image: 'bitnami/kafka:latest'
@@ -30,16 +32,18 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server1:9092,PLAINTEXT_HOST://localhost:29092
+    volumes:
+      - 'kafka_1_data:/bitnami/kafka'
     depends_on:
       - zookeeper-server
 
   kafka-server2:
     image: 'bitnami/kafka:latest'
-    networks:
-      - kafka-net
-    ports:
-      - '9093:9093'
-      - '29093:29093'
+#    networks:
+#      - kafka-net
+#    ports:
+#      - '9093:9093'
+#      - '29093:29093'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CFG_NODE_ID=2
@@ -49,16 +53,19 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9093,PLAINTEXT_HOST://:29093
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server2:9093,PLAINTEXT_HOST://localhost:29093
+    volumes:
+      - 'kafka_2_data:/bitnami/kafka'
+
     depends_on:
       - zookeeper-server
 
   kafka-server3:
     image: 'bitnami/kafka:latest'
-    networks:
-      - kafka-net
-    ports:
-      - '9094:9094'
-      - '29094:29094'
+#    networks:
+#      - kafka-net
+#    ports:
+#      - '9094:9094'
+#      - '29094:29094'
     environment:
       - KAFKA_CFG_PROCESS_ROLES=broker
       - KAFKA_CFG_NODE_ID=3
@@ -68,6 +75,8 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9094,PLAINTEXT_HOST://:29094
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server3:9094,PLAINTEXT_HOST://localhost:29094
+    volumes:
+    - 'kafka_3_data:/bitnami/kafka'
     depends_on:
       - zookeeper-server
 
@@ -166,3 +175,14 @@ services:
     depends_on:
       - car-position-consumer
       - docker-mongodb
+
+#   volumes
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_1_data:
+    driver: local
+  kafka_2_data:
+    driver: local
+  kafka_3_data:
+    driver: local

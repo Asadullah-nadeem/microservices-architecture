@@ -1,4 +1,4 @@
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 LABEL authors="asadu"
 
 ARG JAR_FILE=target/*.jar
