@@ -1,6 +1,6 @@
 package com.example.car_position_consumer.service;
 
-import com.sn.challenge.model.Vehicle;
+import com.example.car_position_consumer.model.Vehicle;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

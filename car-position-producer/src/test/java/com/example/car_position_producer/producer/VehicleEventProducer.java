@@ -9,9 +9,10 @@ import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
+import java.util.concurrent.CompletableFuture;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+
 
 @Component
 @Slf4j
@@ -25,6 +26,18 @@ public class VehicleEventProducer {
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
     }
+
+//    public ListenableFuture<SendResult<String,Vehicle>> sendVehicleEvents(Vehicle vehicle) {
+//
+//        String key = vehicle.getVin();
+//
+//        ProducerRecord<String,Vehicle> producerRecord = buildProducerRecord(key, vehicle, topic);
+//
+//        ListenableFuture<SendResult<String,Vehicle>> listenableFuture =  kafkaTemplate.send(producerRecord);
+//        listenableFuture.addCallback(new VehicleEventListenableFutureCallback(key,vehicle));
+//
+//        return listenableFuture;
+//    }
 
     public CompletableFuture<SendResult<String, Vehicle>> sendVehicleEvents(Vehicle vehicle) {
         String key = vehicle.getVin();
@@ -43,8 +56,9 @@ public class VehicleEventProducer {
     }
 
     private ProducerRecord<String, Vehicle> buildProducerRecord(String key, Vehicle value, String topic) {
-        List<Header> recordHeaders = List.of(new RecordHeader("event-source", "Rest Call".getBytes()));
-        return new ProducerRecord<>(topic, null, key, value, recordHeaders);
-    }
-}
 
+        List<Header> recordHeaders = List.of(new RecordHeader("event-source", "Rest Call".getBytes()));
+
+        return new ProducerRecord<String, Vehicle>(topic, null, key, value, recordHeaders);
+    }
+}   
