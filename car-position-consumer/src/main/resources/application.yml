@@ -8,6 +8,8 @@ vehicles:
   url: ${CAR-POSITION-SERVER:http://localhost:3000}
 
 spring:
+  application:
+    name: car-position-consumer # <-- Moved from application.properties
   data:
     mongodb:
       database: car
@@ -16,15 +18,13 @@ spring:
     template:
       default-topic: vehicle-position-events
     consumer:
-      bootstrap-servers: ${KAFKA_SERVERS:kafka-server1:9092, kafka-server2:9093, kafka-server3:9094}
+      bootstrap-servers: ${KAFKA_SERVERS:kafka-server1:29092, kafka-server2:29093, kafka-server3:29094} # <-- Corrected ports for Docker access
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       group-id: vehicle-events-listener-group
       properties:
         spring.json.trusted.packages: "*"
     producer:
-      bootstrap-servers: ${KAFKA_SERVERS:kafka-server1:9092, kafka-server2:9093, kafka-server3:9094}
+      bootstrap-servers: ${KAFKA_SERVERS:kafka-server1:29092, kafka-server2:29093, kafka-server3:29094} # <-- Corrected ports for Docker access
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-

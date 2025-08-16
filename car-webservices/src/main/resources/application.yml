@@ -2,11 +2,12 @@ server:
   port: 8083
 
 spring:
+  application:
+    name: car-webservices
   data:
     mongodb:
       database: car
       uri: ${DATABASE_URI:mongodb://localhost:27017}
-
 
 management:
   endpoints:
