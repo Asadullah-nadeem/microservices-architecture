@@ -9,7 +9,7 @@ vehicles:
 
 spring:
   application:
-    name: car-position-consumer # <-- Moved from application.properties
+    name: car-position-consumer
   data:
     mongodb:
       database: car
