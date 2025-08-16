@@ -1,6 +1,5 @@
 package com.example.car_position_consumer.config;
 
-
 import com.example.car_position_consumer.model.Vehicle;
 import com.example.car_position_consumer.service.VehicleEventService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,89 +15,55 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.retry.RetryPolicy;
-import org.springframework.retry.backoff.FixedBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Configuration
 @EnableKafka
 @Slf4j
 public class VehicleEventsConsumerConfig {
-    @Autowired
-    VehicleEventService vehicleEventService;
 
     @Autowired
-    KafkaProperties kafkaProperties;
+    private VehicleEventService vehicleEventService;
 
+    @Autowired
+    private KafkaProperties kafkaProperties;
 
     @Bean
-        //@ConditionalOnMissingBean(name = "kafkaListenerContainerFactory")
-    ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
+    public ConcurrentKafkaListenerContainerFactory<Object, Object> kafkaListenerContainerFactory(
             ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
             ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+
+        ConcurrentKafkaListenerContainerFactory<Object, Object> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
         configurer.configure(factory, kafkaConsumerFactory
                 .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.kafkaProperties.buildConsumerProperties())));
         factory.setConcurrency(1);
-        //factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
 
-        factory.setErrorHandler(((thrownException, data) -> {
-            log.info("Exception in consumerConfig is {} and the record is {}", thrownException.getMessage(), data);
-            //persist
-        }));
-        factory.setRetryTemplate(retryTemplate());
+        // Set up error handler with retry (2 retries, 1sec delay)
+        FixedBackOff fixedBackOff = new FixedBackOff(1000L, 2L);
 
-        //config recovery
-        factory.setRecoveryCallback((context -> {
-            if (context.getLastThrowable().getCause() instanceof RecoverableDataAccessException) {
-                //invoke recovery logic
-                log.info("Inside the recoverable logic");
-                Arrays.asList(context.attributeNames())
-                        .forEach(attributeName -> {
-                            log.info("Attribute name is : {} ", attributeName);
-                            log.info("Attribute Value is : {} ", context.getAttribute(attributeName));
-                        });
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(
+                (consumerRecord, exception) -> {
+                    if (exception instanceof RecoverableDataAccessException ||
+                            exception.getCause() instanceof RecoverableDataAccessException) {
+                        log.info("Inside recoverable logic. Attempting to recover...");
+                        try {
+                            vehicleEventService.handleRecovery((ConsumerRecord<String, Vehicle>) consumerRecord);
+                        } catch (Exception e) {
+                            log.error("Recovery handler threw exception: {}", e.getMessage(), e);
+                            throw new RuntimeException(e); // escalate if recovery fails
+                        }
+                    } else {
+                        log.error("Non-recoverable exception for record {}: {}", consumerRecord, exception.getMessage(), exception);
+                        // escalate or log; here we escalate
+                        throw new RuntimeException(exception.getMessage(), exception);
+                    }
+                },
+                fixedBackOff // Proper way to set backoff in modern Spring Kafka
+        );
 
-                ConsumerRecord<String, Vehicle> consumerRecord = (ConsumerRecord<String, Vehicle>) context.getAttribute("record");
-                vehicleEventService.handleRecovery(consumerRecord);
-            } else {
-                log.info("Inside the non recoverable logic");
-                throw new RuntimeException(context.getLastThrowable().getMessage());
-            }
-
-
-            return null;
-        }));
-
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
-
-
-    private RetryTemplate retryTemplate() {
-
-        FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();
-        fixedBackOffPolicy.setBackOffPeriod(1000);
-        RetryTemplate retryTemplate = new RetryTemplate();
-        retryTemplate.setRetryPolicy(simpleRetryPolicy());
-        retryTemplate.setBackOffPolicy(fixedBackOffPolicy);
-        return retryTemplate;
-    }
-
-    private RetryPolicy simpleRetryPolicy() {
-
-       /* SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
-        simpleRetryPolicy.setMaxAttempts(3);*/
-        Map<Class<? extends Throwable>, Boolean> exceptionsMap = new HashMap<>();
-        exceptionsMap.put(IllegalArgumentException.class, false);
-        exceptionsMap.put(RecoverableDataAccessException.class, true);
-        SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy(3, exceptionsMap, true);
-        return simpleRetryPolicy;
-    }
-
 }
