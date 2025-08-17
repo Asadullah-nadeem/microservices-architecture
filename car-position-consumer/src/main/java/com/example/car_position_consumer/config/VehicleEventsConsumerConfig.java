@@ -5,7 +5,6 @@ import com.example.car_position_consumer.service.VehicleEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -23,11 +22,14 @@ import org.springframework.util.backoff.FixedBackOff;
 @Slf4j
 public class VehicleEventsConsumerConfig {
 
-    @Autowired
-    private VehicleEventService vehicleEventService;
+    private final VehicleEventService vehicleEventService;
+    private final KafkaProperties kafkaProperties;
 
-    @Autowired
-    private KafkaProperties kafkaProperties;
+    // Use constructor injection
+    public VehicleEventsConsumerConfig(VehicleEventService vehicleEventService, KafkaProperties kafkaProperties) {
+        this.vehicleEventService = vehicleEventService;
+        this.kafkaProperties = kafkaProperties;
+    }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<Object, Object> kafkaListenerContainerFactory(
@@ -40,27 +42,26 @@ public class VehicleEventsConsumerConfig {
                 .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.kafkaProperties.buildConsumerProperties())));
         factory.setConcurrency(1);
 
-        // Set up error handler with retry (2 retries, 1sec delay)
         FixedBackOff fixedBackOff = new FixedBackOff(1000L, 2L);
 
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(
                 (consumerRecord, exception) -> {
-                    if (exception instanceof RecoverableDataAccessException ||
-                            exception.getCause() instanceof RecoverableDataAccessException) {
+                    // Check if the record's value is of the expected type before casting
+                    if (exception instanceof RecoverableDataAccessException && consumerRecord.value() instanceof Vehicle) {
                         log.info("Inside recoverable logic. Attempting to recover...");
                         try {
+                            // Now the cast is much safer
                             vehicleEventService.handleRecovery((ConsumerRecord<String, Vehicle>) consumerRecord);
                         } catch (Exception e) {
                             log.error("Recovery handler threw exception: {}", e.getMessage(), e);
-                            throw new RuntimeException(e); // escalate if recovery fails
+                            throw new RuntimeException(e);
                         }
                     } else {
-                        log.error("Non-recoverable exception for record {}: {}", consumerRecord, exception.getMessage(), exception);
-                        // escalate or log; here we escalate
+                        log.error("Non-recoverable exception or type mismatch for record {}: {}", consumerRecord, exception.getMessage(), exception);
                         throw new RuntimeException(exception.getMessage(), exception);
                     }
                 },
-                fixedBackOff // Proper way to set backoff in modern Spring Kafka
+                fixedBackOff
         );
 
         factory.setCommonErrorHandler(errorHandler);
