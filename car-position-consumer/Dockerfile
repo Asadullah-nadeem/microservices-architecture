@@ -1,9 +1,5 @@
-ENTRYPOINT ["java","-jar","/app.jar"]
-FROM ubuntu:latest
+FROM eclipse-temurin:17-jre-alpine
 LABEL authors="asadu"
-
-ENTRYPOINT ["top", "-b"]
 ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} car-position-consumer.jar
-
-ENTRYPOINT ["java", "-jar", "car-position-consumer.jar"]
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
