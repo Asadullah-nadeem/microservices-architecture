@@ -4,7 +4,7 @@ networks:
   kafka-net:
     driver: bridge
   elk-network:
-    driver: bridge  
+    driver: bridge
 
 services:
   zookeeper-server:
@@ -179,6 +179,9 @@ services:
     depends_on:
       - car-position-consumer
       - docker-mongodb
+      - logstash
+    environment:
+      - LOGSTASH_HOST=logstash
 
 #   volumes
 volumes:
