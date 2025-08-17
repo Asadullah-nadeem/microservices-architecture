@@ -194,8 +194,30 @@ services:
     networks:
       - elk-network
 
+  logstash:
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
 
-#   volumes
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.16.2
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
+
+
+# Volumes
 volumes:
   zookeeper_data:
     driver: local
@@ -205,3 +227,7 @@ volumes:
     driver: local
   kafka_3_data:
     driver: local
+  es_data:
+    driver: local
+
+
