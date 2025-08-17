@@ -19,13 +19,10 @@ public class VehiclesService {
         this.restTemplate = restTemplate;
     }
 
-    public Vehicle[] getVehicleInfo(){
-
+    public Vehicle[] getVehicleInfo(String city) {
         ResponseEntity<Vehicle[]> responseEntity = restTemplate.getForEntity(
-                vehicleUrl+"/vehicles/Stuttgart", Vehicle[].class);
-
+                vehicleUrl + "/vehicles/" + city, Vehicle[].class);
         return responseEntity.getBody();
     }
-
 
 }
