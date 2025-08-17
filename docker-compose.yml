@@ -182,6 +182,18 @@ services:
       - logstash
     environment:
       - LOGSTASH_HOST=logstash
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - elk-network
+
 
 #   volumes
 volumes:
