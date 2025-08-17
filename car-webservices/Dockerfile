@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+FROM openjdk:11-jre-slim
 FROM ubuntu:latest
 LABEL authors="asadu"
 

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+ENTRYPOINT ["java","-jar","/app.jar"]
 FROM ubuntu:latest
 LABEL authors="asadu"
 
