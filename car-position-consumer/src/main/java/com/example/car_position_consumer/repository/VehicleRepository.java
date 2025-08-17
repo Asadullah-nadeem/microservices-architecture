@@ -7,6 +7,6 @@ import java.util.List;
 
 
 @Repository
-public interface VehicleRepository extends MongoRepository<Vehicle,String> {
+public interface VehicleRepository extends MongoRepository<Vehicle, String> {
     List<Vehicle> findByPolygonId(String polygonId);
 }
