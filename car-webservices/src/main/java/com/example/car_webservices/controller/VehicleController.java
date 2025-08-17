@@ -3,8 +3,6 @@ package com.example.car_webservices.controller;
 import com.example.car_webservices.model.Vehicle;
 import com.example.car_webservices.service.VehicleService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +14,6 @@ import java.util.List;
 @RestController
 @Slf4j
 public class VehicleController {
-    private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);
 
     private final VehicleService vehicleService;
 
@@ -27,9 +24,9 @@ public class VehicleController {
     @GetMapping(value = "/api/v1//vehiclesByPolygon")
     public ResponseEntity<List<Vehicle>> getVehiclesByPolygonId(@RequestParam("polygonId") String polygonId) {
 
-        logger.info("REST request to /api/v1//vehicles?polygonId={}", polygonId);
+        log.info("REST request to /api/v1//vehicles?polygonId={}", polygonId);
         ResponseEntity<List<Vehicle>> responseEntity = ResponseEntity.status(HttpStatus.OK).body(vehicleService.getVehiclesByPolygonId(polygonId));
-        logger.info("/api/v1//vehiclesByPolygon?polygonId={} : {}", polygonId, responseEntity);
+        log.info("/api/v1//vehiclesByPolygon?polygonId={} : {}", polygonId, responseEntity);
         return responseEntity;
     }
 
@@ -38,9 +35,9 @@ public class VehicleController {
     @GetMapping(value = "/api/v1//vehicles")
     public ResponseEntity<Vehicle> getVehicleByVin(@RequestParam("vin") String vin) {
 
-        logger.info("REST request to /api/v1//vehicles?vin={}", vin);
+        log.info("REST request to /api/v1//vehicles?vin={}", vin);
         ResponseEntity responseEntity = ResponseEntity.status(HttpStatus.OK).body(vehicleService.getVehicleByVin(vin));
-        logger.info("/api/v1//vehicles?vin={} : {}", vin, responseEntity);
+        log.info("/api/v1//vehicles?vin={} : {}", vin, responseEntity);
         return responseEntity;
     }
 
