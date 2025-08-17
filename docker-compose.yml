@@ -19,7 +19,7 @@ services:
       - 'zookeeper_data:/bitnami/zookeeper'
 
   kafka-server1:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnami/kafka:3.5.1'
     networks:
       - kafka-net
     ports:
@@ -41,7 +41,7 @@ services:
       - zookeeper-server
 
   kafka-server2:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnami/kafka:3.5.1'
     networks:
       - kafka-net
     ports:
@@ -63,7 +63,7 @@ services:
       - zookeeper-server
 
   kafka-server3:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnami/kafka:3.5.1'
     networks:
       - kafka-net
     ports:
